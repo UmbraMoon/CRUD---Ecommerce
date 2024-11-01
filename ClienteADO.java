@@ -21,7 +21,7 @@ public class ClienteADO {
 
     // Inserir um novo cliente no banco de dados
     public void inserirCliente(Cliente cliente) {
-        String sql = "INSERT INTO cliente (nome, email, telefone, dataCadastro) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO cliente (Nome, Email, Telefone, Data_Cadastro) VALUES (?, ?, ?, ?)";
         try (Connection conn = conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, cliente.getNome());
