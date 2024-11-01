@@ -60,7 +60,7 @@ public class ClienteADO {
 
     // Atualizar informações de um cliente existente
     public void atualizarCliente(Cliente cliente) {
-        String sql = "UPDATE cliente SET nome=?, email=?, telefone=?, dataCadastro=? WHERE id=?";
+        String sql = "UPDATE cliente SET Nome=?, Email=?, Telefone=?, Data_Cadastro=? WHERE CLIENTE_ID=?";
         try (Connection conn = conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, cliente.getNome());
@@ -77,7 +77,7 @@ public class ClienteADO {
 
     // Excluir um cliente do banco de dados
     public void excluirCliente(int id) {
-        String sql = "DELETE FROM cliente WHERE id=?";
+        String sql = "DELETE FROM cliente WHERE CLIENTE_ID=?";
         try (Connection conn = conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -90,7 +90,7 @@ public class ClienteADO {
 
     // Consultar cliente específico por ID
     public Cliente consultarClientePorId(int id) {
-        String sql = "SELECT * FROM cliente WHERE id=?";
+        String sql = "SELECT * FROM cliente WHERE Cliente_ID=?";
         try (Connection conn = conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
