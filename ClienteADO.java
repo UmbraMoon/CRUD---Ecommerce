@@ -1,113 +1,71 @@
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-// Código para CRUD na tabela Cliente (Guilherme Soares)
-public class ClienteADO {
+public class ClienteDAO {
 
-    // Método para conectar ao banco de dados
-    private Connection conectar() {
-        String url = "jdbc:mysql://localhost:3307/ecommerce";
-        String usuario = "root";
-        String senha = "catolica";
-        try {
-            return DriverManager.getConnection(url, usuario, senha);
-        } catch (SQLException e) {
-            System.out.println("Erro ao conectar ao banco de dados: " + e.getMessage());
-            return null;
-        }
+    private final String url = "jdbc:mysql://localhost:3306/ecommerce";
+    private final String user = "root";
+    private final String password = "user";
+
+    private Connection conectar() throws SQLException {
+        return DriverManager.getConnection(url, user, password);
     }
 
-    // Inserir um novo cliente no banco de dados
-    public void inserirCliente(Cliente cliente) {
-        String sql = "INSERT INTO cliente (Nome, Email, Telefone, Data_Cadastro) VALUES (?, ?, ?, ?)";
+    // CREATE
+    public void cadastrarCliente(Cliente cliente) throws SQLException {
+        String sql = "INSERT INTO clientes (nome, email, telefone, data_cadastro) VALUES (?, ?, ?, ?)";
         try (Connection conn = conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, cliente.getNome());
             stmt.setString(2, cliente.getEmail());
             stmt.setString(3, cliente.getTelefone());
-            stmt.setDate(4, new java.sql.Date(cliente.getDataCadastro().getTime()));
+            stmt.setString(4, cliente.getDataCadastro());
             stmt.executeUpdate();
-            System.out.println("Cliente inserido com sucesso.");
-        } catch (SQLException e) {
-            System.out.println("Erro ao inserir cliente: " + e.getMessage());
         }
     }
 
-    // Consultar todos os clientes no banco de dados
-    public List<Cliente> consultarClientes() {
+    // READ
+    public List<Cliente> listarClientes() throws SQLException {
         List<Cliente> clientes = new ArrayList<>();
-        String sql = "SELECT * FROM cliente";
+        String sql = "SELECT * FROM clientes";
         try (Connection conn = conectar();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Cliente cliente = new Cliente(
+                        rs.getInt("cliente_id"),
                         rs.getString("nome"),
                         rs.getString("email"),
                         rs.getString("telefone"),
-                        rs.getDate("dataCadastro"),
-                        rs.getInt("id")
+                        rs.getString("data_cadastro")
                 );
                 clientes.add(cliente);
             }
-        } catch (SQLException e) {
-            System.out.println("Erro ao consultar clientes: " + e.getMessage());
         }
         return clientes;
     }
 
-    // Atualizar informações de um cliente existente
-    public void atualizarCliente(Cliente cliente) {
-        String sql = "UPDATE cliente SET Nome=?, Email=?, Telefone=?, Data_Cadastro=? WHERE CLIENTE_ID=?";
+    // UPDATE
+    public void atualizarCliente(int clienteId, Cliente clienteAtualizado) throws SQLException {
+        String sql = "UPDATE clientes SET nome = ?, email = ?, telefone = ? WHERE cliente_id = ?";
         try (Connection conn = conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, cliente.getNome());
-            stmt.setString(2, cliente.getEmail());
-            stmt.setString(3, cliente.getTelefone());
-            stmt.setDate(4, new java.sql.Date(cliente.getDataCadastro().getTime()));
-            stmt.setInt(5, cliente.getId());
+            stmt.setString(1, clienteAtualizado.getNome());
+            stmt.setString(2, clienteAtualizado.getEmail());
+            stmt.setString(3, clienteAtualizado.getTelefone());
+            stmt.setInt(4, clienteId);
             stmt.executeUpdate();
-            System.out.println("Cliente atualizado com sucesso.");
-        } catch (SQLException e) {
-            System.out.println("Erro ao atualizar cliente: " + e.getMessage());
         }
     }
 
-    // Excluir um cliente do banco de dados
-    public void excluirCliente(int id) {
-        String sql = "DELETE FROM cliente WHERE CLIENTE_ID=?";
+    // DELETE
+    public void excluirCliente(int clienteId) throws SQLException {
+        String sql = "DELETE FROM clientes WHERE cliente_id = ?";
         try (Connection conn = conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+            stmt.setInt(1, clienteId);
             stmt.executeUpdate();
-            System.out.println("Cliente excluído com sucesso.");
-        } catch (SQLException e) {
-            System.out.println("Erro ao excluir cliente: " + e.getMessage());
         }
-    }
-
-    // Consultar cliente específico por ID
-    public Cliente consultarClientePorId(int id) {
-        String sql = "SELECT * FROM cliente WHERE Cliente_ID=?";
-        try (Connection conn = conectar();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return new Cliente(
-                            rs.getString("nome"),
-                            rs.getString("email"),
-                            rs.getString("telefone"),
-                            rs.getDate("dataCadastro"),
-                            rs.getInt("id")
-                    );
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Erro ao consultar cliente por ID: " + e.getMessage());
-        }
-        return null;
     }
 }
